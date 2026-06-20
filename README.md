@@ -11,11 +11,12 @@ A calibrated model should assign species counts that nest correctly: genus ≤ f
 ## Design
 
 - **Taxonomy:** Birds (Aves), ground truth from [IOC World Bird List](https://www.worldbirdnames.org/)
-- **Scenarios:** 6 bird families × 2 genera each × 2 prompt variants (natural / statistical phrasing) = 24 scenarios
-- **Levels per scenario:** 3 separate prompts — genus, containing family, containing order
-- **Elicitation:** (p10, p50, p90) quantile intervals, structured output
+- **Scenarios:** 12 bird families × 2 genera each (1 well-known + 1 obscure) = 24 cells
+- **Levels per cell:** 3 separate prompts — genus, containing family, containing order (72 prompts total)
+- **Prompts:** Single template in `prompts/taxonomy.txt` with `{taxonomic_unit}` filled per level (e.g. `the genus Corvus`)
+- **Elicitation:** (p10, p50, p90) quantile intervals + confidence, structured JSON output
 - **Models:** claude-haiku-4-5, claude-sonnet-4-6, claude-opus-4-8, gpt-4o-mini, gpt-4o (5 models; fable-5 unavailable)
-- **n:** 24 scenarios × 3 levels × 5 models = 360 individual forecasts
+- **n:** 72 prompts × 5 models = 360 individual forecasts
 
 ## Scoring
 
@@ -54,9 +55,10 @@ n=24 is sufficient for structural/hierarchy findings. Model-ranking claims are l
 ## Repo structure
 
 ```
-prompts/          scenario definitions and prompt templates
-scripts/          data collection and scoring
-src/              shared utilities
-data/             IOC reference data (ioc_*.xlsx gitignored; commit derived CSV)
-results/          scored output by model
+prompts/taxonomy.txt   prompt template
+data/scenarios.yaml    24 taxonomy cells
+scripts/               IOC derivation, demo predictions
+src/                   schema, run_eval, score, validate
+data/                  IOC reference (ioc_*.xlsx gitignored)
+results/               scored output by model
 ```

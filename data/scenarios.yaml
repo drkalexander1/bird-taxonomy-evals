@@ -1,0 +1,236 @@
+# 24 cells: 12 families × 2 genera (1 well-known + 1 obscure) → 72 prompts (×3 levels)
+# IOC counts are PLACEHOLDERS until verified via scripts/derive_ioc_counts.py
+
+ioc_version: "15.2"
+ioc_version_note: >-
+  Replace placeholder counts after running derive_ioc_counts.py on the official
+  IOC Master List spreadsheet (data/ioc_v15.2.xlsx).
+
+cells:
+  # --- Corvidae ---
+  - genus: Corvus
+    family: Corvidae
+    order: Passeriformes
+    familiarity: well_known
+    ioc_genus: 45
+    ioc_family: 135
+    ioc_order: 6590
+    notes: PLACEHOLDER counts
+
+  - genus: Nucifraga
+    family: Corvidae
+    order: Passeriformes
+    familiarity: obscure
+    ioc_genus: 3
+    ioc_family: 135
+    ioc_order: 6590
+    notes: PLACEHOLDER counts
+
+  # --- Trochilidae ---
+  - genus: Archilochus
+    family: Trochilidae
+    order: Apodiformes
+    familiarity: well_known
+    ioc_genus: 2
+    ioc_family: 363
+    ioc_order: 450
+    notes: PLACEHOLDER counts
+
+  - genus: Chaetocercus
+    family: Trochilidae
+    order: Apodiformes
+    familiarity: obscure
+    ioc_genus: 10
+    ioc_family: 363
+    ioc_order: 450
+    notes: PLACEHOLDER counts
+
+  # --- Psittacidae ---
+  - genus: Amazona
+    family: Psittacidae
+    order: Psittaciformes
+    familiarity: well_known
+    ioc_genus: 31
+    ioc_family: 180
+    ioc_order: 406
+    notes: PLACEHOLDER counts
+
+  - genus: Bolborhynchus
+    family: Psittacidae
+    order: Psittaciformes
+    familiarity: obscure
+    ioc_genus: 3
+    ioc_family: 180
+    ioc_order: 406
+    notes: PLACEHOLDER counts
+
+  # --- Strigidae ---
+  - genus: Bubo
+    family: Strigidae
+    order: Strigiformes
+    familiarity: well_known
+    ioc_genus: 20
+    ioc_family: 228
+    ioc_order: 245
+    notes: PLACEHOLDER counts
+
+  - genus: Xenoglaux
+    family: Strigidae
+    order: Strigiformes
+    familiarity: obscure
+    ioc_genus: 1
+    ioc_family: 228
+    ioc_order: 245
+    notes: PLACEHOLDER counts
+
+  # --- Ramphastidae ---
+  - genus: Ramphastos
+    family: Ramphastidae
+    order: Piciformes
+    familiarity: well_known
+    ioc_genus: 8
+    ioc_family: 37
+    ioc_order: 450
+    notes: PLACEHOLDER counts
+
+  - genus: Selenidera
+    family: Ramphastidae
+    order: Piciformes
+    familiarity: obscure
+    ioc_genus: 6
+    ioc_family: 37
+    ioc_order: 450
+    notes: PLACEHOLDER counts
+
+  # --- Pittidae ---
+  - genus: Pitta
+    family: Pittidae
+    order: Passeriformes
+    familiarity: well_known
+    ioc_genus: 17
+    ioc_family: 46
+    ioc_order: 6590
+    notes: PLACEHOLDER counts
+
+  - genus: Erythropitta
+    family: Pittidae
+    order: Passeriformes
+    familiarity: obscure
+    ioc_genus: 12
+    ioc_family: 46
+    ioc_order: 6590
+    notes: PLACEHOLDER counts
+
+  # --- Accipitridae ---
+  - genus: Accipiter
+    family: Accipitridae
+    order: Accipitriformes
+    familiarity: well_known
+    ioc_genus: 51
+    ioc_family: 250
+    ioc_order: 250
+    notes: PLACEHOLDER counts
+
+  - genus: Urotriorchis
+    family: Accipitridae
+    order: Accipitriformes
+    familiarity: obscure
+    ioc_genus: 1
+    ioc_family: 250
+    ioc_order: 250
+    notes: PLACEHOLDER counts
+
+  # --- Anatidae ---
+  - genus: Anas
+    family: Anatidae
+    order: Anseriformes
+    familiarity: well_known
+    ioc_genus: 31
+    ioc_family: 166
+    ioc_order: 180
+    notes: PLACEHOLDER counts
+
+  - genus: Sarkidiornis
+    family: Anatidae
+    order: Anseriformes
+    familiarity: obscure
+    ioc_genus: 2
+    ioc_family: 166
+    ioc_order: 180
+    notes: PLACEHOLDER counts
+
+  # --- Fringillidae ---
+  - genus: Fringilla
+    family: Fringillidae
+    order: Passeriformes
+    familiarity: well_known
+    ioc_genus: 3
+    ioc_family: 230
+    ioc_order: 6590
+    notes: PLACEHOLDER counts
+
+  - genus: Carpodacus
+    family: Fringillidae
+    order: Passeriformes
+    familiarity: obscure
+    ioc_genus: 28
+    ioc_family: 230
+    ioc_order: 6590
+    notes: PLACEHOLDER counts
+
+  # --- Columbidae ---
+  - genus: Columba
+    family: Columbidae
+    order: Columbiformes
+    familiarity: well_known
+    ioc_genus: 35
+    ioc_family: 340
+    ioc_order: 350
+    notes: PLACEHOLDER counts
+
+  - genus: Claravis
+    family: Columbidae
+    order: Columbiformes
+    familiarity: obscure
+    ioc_genus: 3
+    ioc_family: 340
+    ioc_order: 350
+    notes: PLACEHOLDER counts
+
+  # --- Falconidae ---
+  - genus: Falco
+    family: Falconidae
+    order: Falconiformes
+    familiarity: well_known
+    ioc_genus: 40
+    ioc_family: 66
+    ioc_order: 66
+    notes: PLACEHOLDER counts
+
+  - genus: Microhierax
+    family: Falconidae
+    order: Falconiformes
+    familiarity: obscure
+    ioc_genus: 5
+    ioc_family: 66
+    ioc_order: 66
+    notes: PLACEHOLDER counts
+
+  # --- Alcidae ---
+  - genus: Fratercula
+    family: Alcidae
+    order: Charadriiformes
+    familiarity: well_known
+    ioc_genus: 3
+    ioc_family: 25
+    ioc_order: 390
+    notes: PLACEHOLDER counts
+
+  - genus: Synthliboramphus
+    family: Alcidae
+    order: Charadriiformes
+    familiarity: obscure
+    ioc_genus: 5
+    ioc_family: 25
+    ioc_order: 390
+    notes: PLACEHOLDER counts

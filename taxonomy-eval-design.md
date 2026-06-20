@@ -30,7 +30,7 @@ Derive a CSV from the IOC spreadsheet and commit that; gitignore the raw xlsx.
 
 ## Scenario selection
 
-**6 bird families, 2 genera per family.** Within each family, pick:
+**12 bird families, 2 genera per family.** Within each family:
 - 1 genus that is well-known (higher model familiarity, expect lower uncertainty)
 - 1 genus that is less-known (expect higher uncertainty or recycling)
 
@@ -43,20 +43,19 @@ Candidate families (vary by size and familiarity):
 - Strigidae (owls) — medium, well-known
 - Ramphastidae (toucans) — medium, recognizable
 - Pittidae (pittas) — small, obscure
+- Accipitridae, Anatidae, Fringillidae, Columbidae, Falconidae, Alcidae (added for n=24)
 
-Final family list: confirm counts from IOC before committing to scenarios. Avoid families where IOC count is under active revision.
+Final family list: confirm counts from IOC before committing to scenarios.
 
 ## Prompt design
 
-**Separate prompts for each level.** The model doesn't know it's being consistency-checked. Each prompt asks for one level only.
+**Single template** in `prompts/taxonomy.txt`. Each level uses explicit Latin rank via `{taxonomic_unit}`:
 
-Two variants per scenario:
-- **Natural:** "How many species of [common name] are there?" 
-- **Statistical:** "According to the IOC World Bird List, approximately how many species are currently recognized in the genus/family/order [Latin name]?"
+> How many bird species are currently recognized in **the genus Corvus** worldwide?
 
-Statistical phrasing anchors to a specific authority and may reduce hallucination. Natural phrasing tests what the model retrieves unprompted. The florida finding (statistical phrasing directionally better) should replicate or not.
+To adapt for a future eval, edit the template text or add a new file and point `PROMPT_PATH` in `schema.py`.
 
-**Elicitation format:** structured output, same as florida-weather-evals. Request (p10, p50, p90) with explicit instruction that p10 = 10th percentile of model's uncertainty, p90 = 90th. Include a confidence field (0-1) to replicate the gpt-4o decorative-confidence finding.
+**Separate prompts for each level.** The model doesn't know it's being consistency-checked.
 
 ## Scoring
 

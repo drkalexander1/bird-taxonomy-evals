@@ -7,6 +7,5 @@ venv/
 dist/
 .DS_Store
 data/ioc_*.xlsx
-data/ioc_*.csv
 results/raw/
 *.jsonl

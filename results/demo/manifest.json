@@ -1,0 +1,11 @@
+{
+  "created_at": "demo",
+  "models": [
+    "gpt-4o-mini-demo",
+    "gpt-4o-demo",
+    "gpt-4o-bad-demo"
+  ],
+  "scenario_count": 72,
+  "predictions_file": "predictions.jsonl",
+  "note": "Synthetic data for scoring smoke test only"
+}
