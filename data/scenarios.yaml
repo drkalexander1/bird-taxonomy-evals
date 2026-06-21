@@ -1,236 +1,340 @@
-# 24 cells: 12 families × 2 genera (1 well-known + 1 obscure) → 72 prompts (×3 levels)
-# IOC counts are PLACEHOLDERS until verified via scripts/derive_ioc_counts.py
-
-ioc_version: "15.2"
-ioc_version_note: >-
-  Replace placeholder counts after running derive_ioc_counts.py on the official
-  IOC Master List spreadsheet (data/ioc_v15.2.xlsx).
-
+ioc_version: '15.2'
+ioc_version_note: Counts derived from IOC Life List+ / Master list and cross-authority
+  spans from IOC v15.2 comparison spreadsheet.
 cells:
-  # --- Corvidae ---
-  - genus: Corvus
-    family: Corvidae
-    order: Passeriformes
-    familiarity: well_known
-    ioc_genus: 45
-    ioc_family: 135
-    ioc_order: 6590
-    notes: PLACEHOLDER counts
-
-  - genus: Nucifraga
-    family: Corvidae
-    order: Passeriformes
-    familiarity: obscure
-    ioc_genus: 3
-    ioc_family: 135
-    ioc_order: 6590
-    notes: PLACEHOLDER counts
-
-  # --- Trochilidae ---
-  - genus: Archilochus
-    family: Trochilidae
-    order: Apodiformes
-    familiarity: well_known
-    ioc_genus: 2
-    ioc_family: 363
-    ioc_order: 450
-    notes: PLACEHOLDER counts
-
-  - genus: Chaetocercus
-    family: Trochilidae
-    order: Apodiformes
-    familiarity: obscure
-    ioc_genus: 10
-    ioc_family: 363
-    ioc_order: 450
-    notes: PLACEHOLDER counts
-
-  # --- Psittacidae ---
-  - genus: Amazona
-    family: Psittacidae
-    order: Psittaciformes
-    familiarity: well_known
-    ioc_genus: 31
-    ioc_family: 180
-    ioc_order: 406
-    notes: PLACEHOLDER counts
-
-  - genus: Bolborhynchus
-    family: Psittacidae
-    order: Psittaciformes
-    familiarity: obscure
-    ioc_genus: 3
-    ioc_family: 180
-    ioc_order: 406
-    notes: PLACEHOLDER counts
-
-  # --- Strigidae ---
-  - genus: Bubo
-    family: Strigidae
-    order: Strigiformes
-    familiarity: well_known
-    ioc_genus: 20
-    ioc_family: 228
-    ioc_order: 245
-    notes: PLACEHOLDER counts
-
-  - genus: Xenoglaux
-    family: Strigidae
-    order: Strigiformes
-    familiarity: obscure
-    ioc_genus: 1
-    ioc_family: 228
-    ioc_order: 245
-    notes: PLACEHOLDER counts
-
-  # --- Ramphastidae ---
-  - genus: Ramphastos
-    family: Ramphastidae
-    order: Piciformes
-    familiarity: well_known
-    ioc_genus: 8
-    ioc_family: 37
-    ioc_order: 450
-    notes: PLACEHOLDER counts
-
-  - genus: Selenidera
-    family: Ramphastidae
-    order: Piciformes
-    familiarity: obscure
-    ioc_genus: 6
-    ioc_family: 37
-    ioc_order: 450
-    notes: PLACEHOLDER counts
-
-  # --- Pittidae ---
-  - genus: Pitta
-    family: Pittidae
-    order: Passeriformes
-    familiarity: well_known
-    ioc_genus: 17
-    ioc_family: 46
-    ioc_order: 6590
-    notes: PLACEHOLDER counts
-
-  - genus: Erythropitta
-    family: Pittidae
-    order: Passeriformes
-    familiarity: obscure
-    ioc_genus: 12
-    ioc_family: 46
-    ioc_order: 6590
-    notes: PLACEHOLDER counts
-
-  # --- Accipitridae ---
-  - genus: Accipiter
-    family: Accipitridae
-    order: Accipitriformes
-    familiarity: well_known
-    ioc_genus: 51
-    ioc_family: 250
-    ioc_order: 250
-    notes: PLACEHOLDER counts
-
-  - genus: Urotriorchis
-    family: Accipitridae
-    order: Accipitriformes
-    familiarity: obscure
-    ioc_genus: 1
-    ioc_family: 250
-    ioc_order: 250
-    notes: PLACEHOLDER counts
-
-  # --- Anatidae ---
-  - genus: Anas
-    family: Anatidae
-    order: Anseriformes
-    familiarity: well_known
-    ioc_genus: 31
-    ioc_family: 166
-    ioc_order: 180
-    notes: PLACEHOLDER counts
-
-  - genus: Sarkidiornis
-    family: Anatidae
-    order: Anseriformes
-    familiarity: obscure
-    ioc_genus: 2
-    ioc_family: 166
-    ioc_order: 180
-    notes: PLACEHOLDER counts
-
-  # --- Fringillidae ---
-  - genus: Fringilla
-    family: Fringillidae
-    order: Passeriformes
-    familiarity: well_known
-    ioc_genus: 3
-    ioc_family: 230
-    ioc_order: 6590
-    notes: PLACEHOLDER counts
-
-  - genus: Carpodacus
-    family: Fringillidae
-    order: Passeriformes
-    familiarity: obscure
-    ioc_genus: 28
-    ioc_family: 230
-    ioc_order: 6590
-    notes: PLACEHOLDER counts
-
-  # --- Columbidae ---
-  - genus: Columba
-    family: Columbidae
-    order: Columbiformes
-    familiarity: well_known
-    ioc_genus: 35
-    ioc_family: 340
-    ioc_order: 350
-    notes: PLACEHOLDER counts
-
-  - genus: Claravis
-    family: Columbidae
-    order: Columbiformes
-    familiarity: obscure
-    ioc_genus: 3
-    ioc_family: 340
-    ioc_order: 350
-    notes: PLACEHOLDER counts
-
-  # --- Falconidae ---
-  - genus: Falco
-    family: Falconidae
-    order: Falconiformes
-    familiarity: well_known
-    ioc_genus: 40
-    ioc_family: 66
-    ioc_order: 66
-    notes: PLACEHOLDER counts
-
-  - genus: Microhierax
-    family: Falconidae
-    order: Falconiformes
-    familiarity: obscure
-    ioc_genus: 5
-    ioc_family: 66
-    ioc_order: 66
-    notes: PLACEHOLDER counts
-
-  # --- Alcidae ---
-  - genus: Fratercula
-    family: Alcidae
-    order: Charadriiformes
-    familiarity: well_known
-    ioc_genus: 3
-    ioc_family: 25
-    ioc_order: 390
-    notes: PLACEHOLDER counts
-
-  - genus: Synthliboramphus
-    family: Alcidae
-    order: Charadriiformes
-    familiarity: obscure
-    ioc_genus: 5
-    ioc_family: 25
-    ioc_order: 390
-    notes: PLACEHOLDER counts
+- genus: Corvus
+  family: Corvidae
+  order: Passeriformes
+  familiarity: well_known
+  ioc_genus: 50
+  ioc_family: 138
+  ioc_order: 6758
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 41
+  authority_genus_max: 50
+  authority_family_min: 123
+  authority_family_max: 138
+  authority_order_min: 6020
+  authority_order_max: 6758
+- genus: Nucifraga
+  family: Corvidae
+  order: Passeriformes
+  familiarity: obscure
+  ioc_genus: 4
+  ioc_family: 138
+  ioc_order: 6758
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 2
+  authority_genus_max: 4
+  authority_family_min: 123
+  authority_family_max: 138
+  authority_order_min: 6020
+  authority_order_max: 6758
+- genus: Archilochus
+  family: Trochilidae
+  order: Apodiformes
+  familiarity: well_known
+  ioc_genus: 2
+  ioc_family: 366
+  ioc_order: 478
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 2
+  authority_genus_max: 2
+  authority_family_min: 335
+  authority_family_max: 366
+  authority_order_min: 432
+  authority_order_max: 478
+- genus: Chaetocercus
+  family: Trochilidae
+  order: Apodiformes
+  familiarity: obscure
+  ioc_genus: 6
+  ioc_family: 366
+  ioc_order: 478
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 6
+  authority_genus_max: 6
+  authority_family_min: 335
+  authority_family_max: 366
+  authority_order_min: 432
+  authority_order_max: 478
+- genus: Amazona
+  family: Psittacidae
+  order: Psittaciformes
+  familiarity: well_known
+  ioc_genus: 32
+  ioc_family: 181
+  ioc_order: 409
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 30
+  authority_genus_max: 32
+  authority_family_min: 167
+  authority_family_max: 181
+  authority_order_min: 379
+  authority_order_max: 409
+- genus: Bolborhynchus
+  family: Psittacidae
+  order: Psittaciformes
+  familiarity: obscure
+  ioc_genus: 3
+  ioc_family: 181
+  ioc_order: 409
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 3
+  authority_genus_max: 3
+  authority_family_min: 167
+  authority_family_max: 181
+  authority_order_min: 379
+  authority_order_max: 409
+- genus: Bubo
+  family: Strigidae
+  order: Strigiformes
+  familiarity: well_known
+  ioc_genus: 12
+  ioc_family: 236
+  ioc_order: 256
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 7
+  authority_genus_max: 12
+  authority_family_min: 196
+  authority_family_max: 236
+  authority_order_min: 214
+  authority_order_max: 256
+- genus: Xenoglaux
+  family: Strigidae
+  order: Strigiformes
+  familiarity: obscure
+  ioc_genus: 1
+  ioc_family: 236
+  ioc_order: 256
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 1
+  authority_genus_max: 1
+  authority_family_min: 196
+  authority_family_max: 236
+  authority_order_min: 214
+  authority_order_max: 256
+- genus: Ramphastos
+  family: Ramphastidae
+  order: Piciformes
+  familiarity: well_known
+  ioc_genus: 8
+  ioc_family: 38
+  ioc_order: 444
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 7
+  authority_genus_max: 8
+  authority_family_min: 34
+  authority_family_max: 38
+  authority_order_min: 406
+  authority_order_max: 444
+- genus: Selenidera
+  family: Ramphastidae
+  order: Piciformes
+  familiarity: obscure
+  ioc_genus: 6
+  ioc_family: 38
+  ioc_order: 444
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 6
+  authority_genus_max: 6
+  authority_family_min: 34
+  authority_family_max: 38
+  authority_order_min: 406
+  authority_order_max: 444
+- genus: Pitta
+  family: Pittidae
+  order: Passeriformes
+  familiarity: well_known
+  ioc_genus: 20
+  ioc_family: 46
+  ioc_order: 6758
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 13
+  authority_genus_max: 20
+  authority_family_min: 29
+  authority_family_max: 46
+  authority_order_min: 6020
+  authority_order_max: 6758
+- genus: Erythropitta
+  family: Pittidae
+  order: Passeriformes
+  familiarity: obscure
+  ioc_genus: 13
+  ioc_family: 46
+  ioc_order: 6758
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 5
+  authority_genus_max: 13
+  authority_family_min: 29
+  authority_family_max: 46
+  authority_order_min: 6020
+  authority_order_max: 6758
+- genus: Accipiter
+  family: Accipitridae
+  order: Accipitriformes
+  familiarity: well_known
+  ioc_genus: 9
+  ioc_family: 254
+  ioc_order: 263
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 6
+  authority_genus_max: 9
+  authority_family_min: 241
+  authority_family_max: 254
+  authority_order_min: 250
+  authority_order_max: 263
+- genus: Urotriorchis
+  family: Accipitridae
+  order: Accipitriformes
+  familiarity: obscure
+  ioc_genus: 1
+  ioc_family: 254
+  ioc_order: 263
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 1
+  authority_genus_max: 1
+  authority_family_min: 241
+  authority_family_max: 254
+  authority_order_min: 250
+  authority_order_max: 263
+- genus: Anas
+  family: Anatidae
+  order: Anseriformes
+  familiarity: well_known
+  ioc_genus: 32
+  ioc_family: 174
+  ioc_order: 178
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 26
+  authority_genus_max: 32
+  authority_family_min: 162
+  authority_family_max: 174
+  authority_order_min: 166
+  authority_order_max: 178
+- genus: Sarkidiornis
+  family: Anatidae
+  order: Anseriformes
+  familiarity: obscure
+  ioc_genus: 2
+  ioc_family: 174
+  ioc_order: 178
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 1
+  authority_genus_max: 2
+  authority_family_min: 162
+  authority_family_max: 174
+  authority_order_min: 166
+  authority_order_max: 178
+- genus: Fringilla
+  family: Fringillidae
+  order: Passeriformes
+  familiarity: well_known
+  ioc_genus: 8
+  ioc_family: 238
+  ioc_order: 6758
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 3
+  authority_genus_max: 8
+  authority_family_min: 220
+  authority_family_max: 238
+  authority_order_min: 6020
+  authority_order_max: 6758
+- genus: Carpodacus
+  family: Fringillidae
+  order: Passeriformes
+  familiarity: obscure
+  ioc_genus: 28
+  ioc_family: 238
+  ioc_order: 6758
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 26
+  authority_genus_max: 28
+  authority_family_min: 220
+  authority_family_max: 238
+  authority_order_min: 6020
+  authority_order_max: 6758
+- genus: Columba
+  family: Columbidae
+  order: Columbiformes
+  familiarity: well_known
+  ioc_genus: 34
+  ioc_family: 352
+  ioc_order: 352
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 34
+  authority_genus_max: 34
+  authority_family_min: 316
+  authority_family_max: 352
+  authority_order_min: 316
+  authority_order_max: 352
+- genus: Claravis
+  family: Columbidae
+  order: Columbiformes
+  familiarity: obscure
+  ioc_genus: 1
+  ioc_family: 352
+  ioc_order: 352
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 1
+  authority_genus_max: 1
+  authority_family_min: 316
+  authority_family_max: 352
+  authority_order_min: 316
+  authority_order_max: 352
+- genus: Falco
+  family: Falconidae
+  order: Falconiformes
+  familiarity: well_known
+  ioc_genus: 39
+  ioc_family: 65
+  ioc_order: 65
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 38
+  authority_genus_max: 39
+  authority_family_min: 64
+  authority_family_max: 65
+  authority_order_min: 64
+  authority_order_max: 65
+- genus: Microhierax
+  family: Falconidae
+  order: Falconiformes
+  familiarity: obscure
+  ioc_genus: 5
+  ioc_family: 65
+  ioc_order: 65
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 5
+  authority_genus_max: 5
+  authority_family_min: 64
+  authority_family_max: 65
+  authority_order_min: 64
+  authority_order_max: 65
+- genus: Fratercula
+  family: Alcidae
+  order: Charadriiformes
+  familiarity: well_known
+  ioc_genus: 3
+  ioc_family: 25
+  ioc_order: 394
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 3
+  authority_genus_max: 3
+  authority_family_min: 25
+  authority_family_max: 25
+  authority_order_min: 374
+  authority_order_max: 394
+- genus: Synthliboramphus
+  family: Alcidae
+  order: Charadriiformes
+  familiarity: obscure
+  ioc_genus: 5
+  ioc_family: 25
+  ioc_order: 394
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 5
+  authority_genus_max: 5
+  authority_family_min: 25
+  authority_family_max: 25
+  authority_order_min: 374
+  authority_order_max: 394

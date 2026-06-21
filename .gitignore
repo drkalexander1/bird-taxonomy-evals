@@ -9,3 +9,4 @@ dist/
 data/ioc_*.xlsx
 results/raw/
 *.jsonl
+.env

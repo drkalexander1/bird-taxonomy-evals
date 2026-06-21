@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from src.schema import Prediction, PredictionRecord, Scenario, build_prompt
+from src.schema import Prediction, PredictionRecord, Scenario, load_scenarios
+from src.schema import build_prompt
 from src.score import (
     build_frame,
     crps_point_target,
@@ -10,16 +11,23 @@ from src.score import (
     mean_pinball,
     pinball_loss,
 )
+from src.schema import ScenarioCell
 
 
-def _scenario(
+def _prompt(
     *,
     level: str,
     cell_id: str = "corvus_corvidae",
     ioc_count: int = 45,
 ) -> Scenario:
+    if level == "genus":
+        prompt_id = f"{cell_id}_genus"
+    elif level == "family":
+        prompt_id = "family_corvidae"
+    else:
+        prompt_id = "order_passeriformes"
     return Scenario(
-        id=f"{cell_id}_{level}",
+        id=prompt_id,
         cell_id=cell_id,
         taxonomic_level=level,  # type: ignore[arg-type]
         genus="Corvus",
@@ -34,14 +42,14 @@ def _scenario(
 
 
 def test_taxonomic_unit():
-    sc = _scenario(level="genus")
+    sc = _prompt(level="genus")
     assert sc.taxonomic_unit == "the genus Corvus"
-    sc = _scenario(level="family", ioc_count=135)
+    sc = _prompt(level="family", ioc_count=135)
     assert sc.taxonomic_unit == "the family Corvidae"
 
 
 def test_build_prompt():
-    sc = _scenario(level="genus")
+    sc = _prompt(level="genus")
     prompt = build_prompt(sc)
     assert "the genus Corvus" in prompt
     assert "How many bird species are currently recognized" in prompt
@@ -58,22 +66,22 @@ def test_crps_point_target_at_median():
 
 
 def test_hierarchy_strict_violation():
-    scenarios = [
-        _scenario(level="genus", ioc_count=45),
-        _scenario(level="family", ioc_count=135),
-        _scenario(level="order", ioc_count=6590),
+    prompts = [
+        _prompt(level="genus", ioc_count=45),
+        _prompt(level="family", ioc_count=135),
+        _prompt(level="order", ioc_count=6590),
     ]
     records = []
-    for s in scenarios:
-        if s.taxonomic_level == "genus":
+    for prompt in prompts:
+        if prompt.taxonomic_level == "genus":
             p10, p50, p90 = 100.0, 200.0, 250.0
-        elif s.taxonomic_level == "family":
+        elif prompt.taxonomic_level == "family":
             p10, p50, p90 = 100.0, 150.0, 200.0
         else:
             p10, p50, p90 = 5000.0, 6000.0, 7000.0
         records.append(
             PredictionRecord(
-                scenario_id=s.id,
+                prompt_key=prompt.prompt_key,
                 model="test-model",
                 provider="Test",
                 prediction=Prediction(
@@ -85,24 +93,95 @@ def test_hierarchy_strict_violation():
                 ),
             )
         )
-    df = build_frame(scenarios, records)
-    cons = hierarchy_consistency(df)
+    df = build_frame(prompts, records)
+    cell = ScenarioCell(
+        genus="Corvus",
+        family="Corvidae",
+        order="Passeriformes",
+        familiarity="well_known",
+        ioc_genus=45,
+        ioc_family=135,
+        ioc_order=6590,
+    )
+    cons = hierarchy_consistency([cell], df)
     assert len(cons) == 1
     assert bool(cons.iloc[0]["strict_violation"]) is True
 
 
+def test_dispute_block_per_level():
+    from src.schema import expand_cell
+
+    cell = ScenarioCell(
+        genus="Fratercula",
+        family="Alcidae",
+        order="Charadriiformes",
+        familiarity="well_known",
+        ioc_genus=3,
+        ioc_family=25,
+        ioc_order=390,
+        authority_genus_min=3,
+        authority_genus_max=3,
+        authority_family_min=25,
+        authority_family_max=25,
+        authority_order_min=385,
+        authority_order_max=390,
+    )
+    expanded = expand_cell(cell)
+    genus = next(s for s in expanded if s.taxonomic_level == "genus")
+    family = next(s for s in expanded if s.taxonomic_level == "family")
+    order = next(s for s in expanded if s.taxonomic_level == "order")
+    assert genus.dispute_block == "undisputed"
+    assert family.dispute_block == "undisputed"
+    assert order.dispute_block == "disputed"
+    assert family.id == "family_alcidae"
+    assert order.id == "order_charadriiformes"
+
+
+def test_authority_span_coverage():
+    prompts = [
+        _prompt(level="genus", ioc_count=45).model_copy(
+            update={"authority_min": 40, "authority_max": 50, "dispute_block": "disputed"}
+        )
+    ]
+    records = [
+        PredictionRecord(
+            prompt_key=prompts[0].prompt_key,
+            model="test-model",
+            provider="Test",
+            prediction=Prediction(
+                p10=38,
+                p50=45,
+                p90=52,
+                confidence=0.8,
+                reasoning="test",
+            ),
+        )
+    ]
+    df = build_frame(prompts, records)
+    assert bool(df.iloc[0]["covers_authority_span"]) is True
+    assert bool(df.iloc[0]["ioc_in_interval"]) is True
+
+
+def test_unique_prompt_count():
+    prompts = load_scenarios()
+    assert len(prompts) == 46
+    assert len([p for p in prompts if p.taxonomic_level == "genus"]) == 24
+    assert len([p for p in prompts if p.taxonomic_level == "family"]) == 12
+    assert len([p for p in prompts if p.taxonomic_level == "order"]) == 10
+
+
 def test_hierarchy_coherent():
-    scenarios = [
-        _scenario(level="genus", ioc_count=45),
-        _scenario(level="family", ioc_count=135),
-        _scenario(level="order", ioc_count=6590),
+    prompts = [
+        _prompt(level="genus", ioc_count=45),
+        _prompt(level="family", ioc_count=135),
+        _prompt(level="order", ioc_count=6590),
     ]
     records = []
-    for s in scenarios:
-        t = float(s.ioc_count)
+    for prompt in prompts:
+        t = float(prompt.ioc_count)
         records.append(
             PredictionRecord(
-                scenario_id=s.id,
+                prompt_key=prompt.prompt_key,
                 model="test-model",
                 provider="Test",
                 prediction=Prediction(
@@ -114,6 +193,15 @@ def test_hierarchy_coherent():
                 ),
             )
         )
-    df = build_frame(scenarios, records)
-    cons = hierarchy_consistency(df)
+    df = build_frame(prompts, records)
+    cell = ScenarioCell(
+        genus="Corvus",
+        family="Corvidae",
+        order="Passeriformes",
+        familiarity="well_known",
+        ioc_genus=45,
+        ioc_family=135,
+        ioc_order=6590,
+    )
+    cons = hierarchy_consistency([cell], df)
     assert bool(cons.iloc[0]["strict_violation"]) is False

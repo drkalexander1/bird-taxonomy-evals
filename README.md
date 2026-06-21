@@ -10,13 +10,26 @@ A calibrated model should assign species counts that nest correctly: genus ≤ f
 
 ## Design
 
-- **Taxonomy:** Birds (Aves), ground truth from [IOC World Bird List](https://www.worldbirdnames.org/)
+## Ground truth
+
+- **Primary target (p50):** IOC World Bird List v15.2 species counts
+- **Reference span (p10/p90):** min/max counts across IOC, AviList, Clements, HBW/BirdLife, and Howard & Moore, derived from the comparison spreadsheet
+- **Dispute blocks:** each scenario cell tagged `undisputed` or `disputed` from genus/family authority spread — supports comparing model calibration on stable vs taxonomically contested taxa
+
+Download both files from [IOC Master Lists](https://www.worldbirdnames.org/ioc-lists/master-list-2/):
+
+```
+data/ioc_v15.2.xlsx              Life List+ or Master list
+data/ioc_v15.2_comparison.xlsx   Comparison with other world lists
+python scripts/derive_ioc_counts.py --update-scenarios
+```
 - **Scenarios:** 12 bird families × 2 genera each (1 well-known + 1 obscure) = 24 cells
-- **Levels per cell:** 3 separate prompts — genus, containing family, containing order (72 prompts total)
+- **Unique prompts:** 46 API calls — 24 genus + 12 family + 10 order
 - **Prompts:** Single template in `prompts/taxonomy.txt` with `{taxonomic_unit}` filled per level (e.g. `the genus Corvus`)
 - **Elicitation:** (p10, p50, p90) quantile intervals + confidence, structured JSON output
 - **Models:** claude-haiku-4-5, claude-sonnet-4-6, claude-opus-4-8, gpt-4o-mini, gpt-4o (5 models; fable-5 unavailable)
-- **n:** 72 prompts × 5 models = 360 individual forecasts
+- **Full run:** 46 prompts × 5 models = 230 API calls
+- **Hierarchy scoring:** joins the 46 stored predictions across 24 cells for consistency checks
 
 ## Scoring
 
@@ -47,7 +60,7 @@ n=24 is sufficient for structural/hierarchy findings. Model-ranking claims are l
 
 ## Limitations
 
-- Ground truth is IOC World Bird List (single authority); counts differ across taxonomic frameworks
+- Ground truth is IOC World Bird List (single authority for p50); cross-authority spans from the IOC comparison file inform reference p10/p90 bounds
 - n=24 supports level-difficulty and structural claims only; adjacent model tiers are not resolvable
 - Separate-prompt design measures coherence of independent beliefs, not reasoning under explicit hierarchical constraint
 - Point target (single IOC count) rather than empirical distribution — CRPS reduces to quantile pinball loss

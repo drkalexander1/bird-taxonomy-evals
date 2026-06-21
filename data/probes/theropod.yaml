@@ -1,0 +1,15 @@
+# Optional sanity probes — not part of the main 46-prompt IOC eval (no ground truth).
+# Theropoda: bird-adjacent clade, extinct-only framing mirrors the extant/extinct ambiguity in Aves.
+
+probes:
+  - id: theropoda_extinct
+    taxonomic_unit: the order Theropoda
+    note: >-
+      Cheeky control. Theropods include the avian lineage; models may recycle
+      bird priors, confuse fossil vs living counts, or refuse. No IOC target.
+
+  - id: maniraptora_extinct
+    taxonomic_unit: the clade Maniraptora
+    note: >-
+      Tighter bird link (includes Aves). Extinct-only wording asks them to exclude
+      living birds — see if they can hold that constraint.

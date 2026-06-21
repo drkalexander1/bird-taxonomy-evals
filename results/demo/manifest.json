@@ -5,7 +5,7 @@
     "gpt-4o-demo",
     "gpt-4o-bad-demo"
   ],
-  "scenario_count": 72,
+  "prompt_count": 46,
   "predictions_file": "predictions.jsonl",
   "note": "Synthetic data for scoring smoke test only"
 }

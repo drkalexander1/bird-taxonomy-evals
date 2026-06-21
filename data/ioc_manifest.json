@@ -1,0 +1,44 @@
+{
+  "ioc_version": "15.2",
+  "generated_at": "2026-06-21T00:22:27.282299+00:00",
+  "source_file": "ioc_v15.2.xlsx",
+  "comparison_file": "ioc_v15.2_comparison.xlsx",
+  "authorities": [
+    "ioc",
+    "avilist",
+    "clements",
+    "hbw_birdlife",
+    "howard_moore"
+  ],
+  "species_rows": 11227,
+  "genera": 2389,
+  "families": 251,
+  "orders": 44,
+  "authority_totals": {
+    "ioc": {
+      "genus": 2389,
+      "family": 251,
+      "order": 44
+    },
+    "avilist": {
+      "genus": 2389,
+      "family": 251,
+      "order": 44
+    },
+    "clements": {
+      "genus": 2389,
+      "family": 251,
+      "order": 44
+    },
+    "hbw_birdlife": {
+      "genus": 2389,
+      "family": 251,
+      "order": 44
+    },
+    "howard_moore": {
+      "genus": 2386,
+      "family": 251,
+      "order": 44
+    }
+  }
+}

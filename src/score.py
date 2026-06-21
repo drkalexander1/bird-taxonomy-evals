@@ -17,7 +17,10 @@ from src.schema import (
     ROOT,
     PredictionRecord,
     Scenario,
+    ScenarioCell,
+    load_scenario_cells,
     load_scenarios,
+    prompt_id_for_cell,
 )
 
 RESULTS_DIR = ROOT / "results" / "latest"
@@ -88,19 +91,23 @@ def load_predictions(path: Path) -> list[PredictionRecord]:
     with path.open(encoding="utf-8") as f:
         for line in f:
             line = line.strip()
-            if line:
-                records.append(PredictionRecord.model_validate_json(line))
+            if not line:
+                continue
+            raw = json.loads(line)
+            if "prompt_key" not in raw and "scenario_id" in raw:
+                raw["prompt_key"] = raw.pop("scenario_id")
+            records.append(PredictionRecord.model_validate(raw))
     return records
 
 
 def build_frame(
-    scenarios: list[Scenario],
+    prompts: list[Scenario],
     predictions: list[PredictionRecord],
 ) -> pd.DataFrame:
-    scenario_map = {s.id: s for s in scenarios}
+    prompt_map = {p.id: p for p in prompts}
     rows = []
     for rec in predictions:
-        sc = scenario_map.get(rec.scenario_id)
+        sc = prompt_map.get(rec.prompt_key)
         if not sc:
             continue
         pred = rec.prediction
@@ -108,17 +115,28 @@ def build_frame(
         p10, p50, p90 = float(pred.p10), float(pred.p50), float(pred.p90)
         scale = max(target, 1.0)
         crps = crps_point_target(p10, p50, p90, target)
+        auth_min = sc.authority_min
+        auth_max = sc.authority_max
+        covers_authority_span = None
+        ioc_in_interval = None
+        if auth_min is not None and auth_max is not None:
+            covers_authority_span = bool(p10 <= auth_min and p90 >= auth_max)
+            ioc_in_interval = bool(p10 <= target <= p90)
         rows.append(
             {
-                "scenario_id": rec.scenario_id,
+                "prompt_key": rec.prompt_key,
                 "cell_id": sc.cell_id,
                 "model": rec.model,
                 "taxonomic_level": sc.taxonomic_level,
-                "familiarity": sc.familiarity,
+                "familiarity": sc.familiarity if sc.taxonomic_level == "genus" else None,
+                "dispute_block": sc.dispute_block,
                 "genus": sc.genus,
                 "family": sc.family,
                 "order": sc.order,
                 "ioc_count": target,
+                "authority_min": auth_min,
+                "authority_max": auth_max,
+                "authority_spread": sc.authority_spread,
                 "ioc_genus": sc.ioc_genus,
                 "ioc_family": sc.ioc_family,
                 "ioc_order": sc.ioc_order,
@@ -127,6 +145,8 @@ def build_frame(
                 "p90": p90,
                 "interval_width": p90 - p10,
                 "relative_interval_width": (p90 - p10) / scale,
+                "covers_authority_span": covers_authority_span,
+                "ioc_in_interval": ioc_in_interval,
                 "confidence": float(pred.confidence),
                 "crps": crps,
                 "crps_relative": crps / scale,
@@ -162,8 +182,8 @@ _Z_BETA = 0.84
 def pairwise_power_analysis(df: pd.DataFrame) -> dict:
     pairs = []
     for a, b in combinations(sorted(df["model"].unique()), 2):
-        da = df[df["model"] == a].set_index("scenario_id")["crps_relative"]
-        db = df[df["model"] == b].set_index("scenario_id")["crps_relative"]
+        da = df[df["model"] == a].set_index("prompt_key")["crps_relative"]
+        db = df[df["model"] == b].set_index("prompt_key")["crps_relative"]
         diffs = (da - db).dropna()
         n = len(diffs)
         if n < 2:
@@ -194,73 +214,106 @@ def pairwise_power_analysis(df: pd.DataFrame) -> dict:
     }
 
 
-def hierarchy_consistency(df: pd.DataFrame) -> pd.DataFrame:
-    """Join genus/family/order p50s per cell × model; compute consistency metrics."""
-    pivot = df.pivot_table(
-        index=["cell_id", "model", "familiarity", "genus", "family"],
-        columns="taxonomic_level",
-        values="p50",
-        aggfunc="first",
-    )
-    ref = df.drop_duplicates("cell_id").set_index("cell_id")[
-        ["ioc_genus", "ioc_family", "ioc_order"]
-    ]
+def hierarchy_consistency(cells: list[ScenarioCell], prompt_df: pd.DataFrame) -> pd.DataFrame:
+    """Join genus/family/order p50s per cell × model via shared prompt keys."""
+    if prompt_df.empty:
+        return pd.DataFrame()
 
+    p50 = prompt_df.set_index(["prompt_key", "model"])["p50"]
+    models = sorted(prompt_df["model"].unique())
     rows = []
-    for (cell_id, model, familiarity, genus, family), row in pivot.iterrows():
-        if not {"genus", "family", "order"} <= set(row.index):
-            continue
-        g_p50, f_p50, o_p50 = float(row["genus"]), float(row["family"]), float(row["order"])
-        ioc = ref.loc[cell_id]
-        ioc_g, ioc_f, ioc_o = int(ioc["ioc_genus"]), int(ioc["ioc_family"]), int(ioc["ioc_order"])
 
-        strict_violation = g_p50 > f_p50 or f_p50 > o_p50
-        compression_ratio = g_p50 / f_p50 if f_p50 > 0 else float("inf")
-        ioc_compression = ioc_g / ioc_f if ioc_f > 0 else 0.0
-        gap_ratio = (f_p50 - g_p50) / f_p50 if f_p50 > 0 else float("nan")
-        ioc_gap_ratio = (ioc_f - ioc_g) / ioc_f if ioc_f > 0 else float("nan")
-        hierarchy_collapse = compression_ratio > 0.9
+    for cell in cells:
+        g_key = prompt_id_for_cell(cell, "genus")
+        f_key = prompt_id_for_cell(cell, "family")
+        o_key = prompt_id_for_cell(cell, "order")
+        ioc_g, ioc_f, ioc_o = cell.ioc_genus, cell.ioc_family, cell.ioc_order
 
-        rows.append(
-            {
-                "cell_id": cell_id,
-                "model": model,
-                "familiarity": familiarity,
-                "genus": genus,
-                "family": family,
-                "genus_p50": g_p50,
-                "family_p50": f_p50,
-                "order_p50": o_p50,
-                "strict_violation": strict_violation,
-                "compression_ratio": compression_ratio,
-                "ioc_compression_ratio": ioc_compression,
-                "compression_exceeds_ioc": compression_ratio
-                > max(ioc_compression * COMPRESSION_THRESHOLD_FACTOR, 0.5),
-                "gap_ratio": gap_ratio,
-                "ioc_gap_ratio": ioc_gap_ratio,
-                "hierarchy_collapse": hierarchy_collapse,
-            }
-        )
+        for model in models:
+            try:
+                g_p50 = float(p50[g_key, model])
+                f_p50 = float(p50[f_key, model])
+                o_p50 = float(p50[o_key, model])
+            except KeyError:
+                continue
+
+            strict_violation = g_p50 > f_p50 or f_p50 > o_p50
+            compression_ratio = g_p50 / f_p50 if f_p50 > 0 else float("inf")
+            ioc_compression = ioc_g / ioc_f if ioc_f > 0 else 0.0
+            gap_ratio = (f_p50 - g_p50) / f_p50 if f_p50 > 0 else float("nan")
+            ioc_gap_ratio = (ioc_f - ioc_g) / ioc_f if ioc_f > 0 else float("nan")
+            hierarchy_collapse = compression_ratio > 0.9
+
+            rows.append(
+                {
+                    "cell_id": cell.cell_id,
+                    "model": model,
+                    "familiarity": cell.familiarity,
+                    "genus": cell.genus,
+                    "family": cell.family,
+                    "genus_p50": g_p50,
+                    "family_p50": f_p50,
+                    "order_p50": o_p50,
+                    "strict_violation": strict_violation,
+                    "compression_ratio": compression_ratio,
+                    "ioc_compression_ratio": ioc_compression,
+                    "compression_exceeds_ioc": compression_ratio
+                    > max(ioc_compression * COMPRESSION_THRESHOLD_FACTOR, 0.5),
+                    "gap_ratio": gap_ratio,
+                    "ioc_gap_ratio": ioc_gap_ratio,
+                    "hierarchy_collapse": hierarchy_collapse,
+                }
+            )
     return pd.DataFrame(rows)
 
 
-def classify_cells(per_level: pd.DataFrame, consistency: pd.DataFrame) -> pd.DataFrame:
+def cell_level_metrics(cells: list[ScenarioCell], prompt_df: pd.DataFrame) -> pd.DataFrame:
+    """Per-cell CRPS and signed error by joining the three prompt scores."""
+    if prompt_df.empty:
+        return pd.DataFrame()
+
+    metrics = prompt_df.set_index(["prompt_key", "model"])
+    models = sorted(prompt_df["model"].unique())
+    rows = []
+
+    for cell in cells:
+        keys = (
+            prompt_id_for_cell(cell, "genus"),
+            prompt_id_for_cell(cell, "family"),
+            prompt_id_for_cell(cell, "order"),
+        )
+        for model in models:
+            try:
+                crps_vals = [float(metrics.loc[(key, model), "crps_relative"]) for key in keys]
+                bias_vals = [float(metrics.loc[(key, model), "signed_error_relative"]) for key in keys]
+            except KeyError:
+                continue
+            rows.append(
+                {
+                    "cell_id": cell.cell_id,
+                    "model": model,
+                    "crps_relative": float(np.mean(crps_vals)),
+                    "signed_error_relative": float(np.mean(bias_vals)),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def classify_cells(cell_metrics: pd.DataFrame, consistency: pd.DataFrame) -> pd.DataFrame:
     """Three-way split: coherent-and-right / coherent-but-wrong / incoherent."""
-    level_crps = per_level.groupby(["cell_id", "model"])["crps_relative"].mean().reset_index()
-    best_by_cell = level_crps.groupby("cell_id")["crps_relative"].min().rename("best_crps")
-    level_crps = level_crps.merge(best_by_cell, on="cell_id")
+    best_by_cell = cell_metrics.groupby("cell_id")["crps_relative"].min().rename("best_crps")
+    level_crps = cell_metrics.merge(best_by_cell, on="cell_id")
     level_crps["within_1sd"] = level_crps["crps_relative"] <= level_crps["best_crps"] * 1.5
 
     merged = consistency.merge(
         level_crps.groupby(["cell_id", "model"]).agg(
             mean_crps_relative=("crps_relative", "mean"),
             within_1sd=("within_1sd", "all"),
+            signed_error_relative=("signed_error_relative", "mean"),
         ),
         on=["cell_id", "model"],
         how="left",
     )
-    bias = per_level.groupby(["cell_id", "model"])["signed_error_relative"].mean().reset_index()
-    merged = merged.merge(bias, on=["cell_id", "model"], how="left")
 
     def _classify(row: pd.Series) -> str:
         if row["strict_violation"] or row["compression_exceeds_ioc"] or row["hierarchy_collapse"]:
@@ -330,18 +383,20 @@ def score_run(
     run_dir: Path,
     scenarios_path: Path | None = None,
 ) -> dict:
-    scenarios = load_scenarios(scenarios_path)
+    cells = load_scenario_cells(scenarios_path)
+    prompts = load_scenarios(scenarios_path)
     predictions_path = run_dir / "predictions.jsonl"
     if not predictions_path.exists():
         raise FileNotFoundError(f"No predictions at {predictions_path}")
 
     predictions = load_predictions(predictions_path)
-    df = build_frame(scenarios, predictions)
+    df = build_frame(prompts, predictions)
     if df.empty:
-        raise ValueError("No matching scenarios for predictions")
+        raise ValueError("No matching prompts for predictions")
 
-    consistency = hierarchy_consistency(df)
-    classified = classify_cells(df, consistency)
+    consistency = hierarchy_consistency(cells, df)
+    cell_metrics = cell_level_metrics(cells, df)
+    classified = classify_cells(cell_metrics, consistency)
 
     summary: dict = {
         "target_source": "ioc_point_count",
@@ -355,8 +410,22 @@ def score_run(
         summary["by_model"][model] = compute_metrics(sub)
     for level, sub in df.groupby("taxonomic_level"):
         summary["by_level"][level] = compute_metrics(sub)
-    for fam, sub in df.groupby("familiarity"):
+    for fam, sub in df[df["taxonomic_level"] == "genus"].groupby("familiarity"):
         summary["by_familiarity"][fam] = compute_metrics(sub)
+    if df["dispute_block"].notna().any():
+        summary["by_dispute_block"] = {}
+        for block, sub in df.groupby("dispute_block", dropna=False):
+            if block is None or (isinstance(block, float) and pd.isna(block)):
+                continue
+            block_metrics = compute_metrics(sub)
+            if sub["covers_authority_span"].notna().any():
+                block_metrics["authority_span_coverage_rate"] = float(
+                    sub["covers_authority_span"].dropna().mean()
+                )
+                block_metrics["ioc_in_interval_rate"] = float(
+                    sub["ioc_in_interval"].dropna().mean()
+                )
+            summary["by_dispute_block"][str(block)] = block_metrics
 
     if df["model"].nunique() >= 2:
         summary["power_analysis"] = pairwise_power_analysis(df)
@@ -368,7 +437,7 @@ def score_run(
 
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    df.to_csv(run_dir / "by_scenario.csv", index=False)
+    df.to_csv(run_dir / "by_prompt.csv", index=False)
     consistency.to_csv(run_dir / "consistency.csv", index=False)
     classified.to_csv(run_dir / "classification.csv", index=False)
 
@@ -378,11 +447,15 @@ def score_run(
         mean_pinball_loss=("mean_pinball_loss", "mean"),
         interval_width=("interval_width", "mean"),
         relative_interval_width=("relative_interval_width", "mean"),
-        n=("scenario_id", "count"),
+        n=("prompt_key", "count"),
     )
     df.groupby(["model", "taxonomic_level", "familiarity"], as_index=False).agg(**agg_spec).to_csv(
         run_dir / "by_level.csv", index=False
     )
+    if df["dispute_block"].notna().any():
+        df.groupby(["model", "dispute_block"], as_index=False).agg(**agg_spec).to_csv(
+            run_dir / "by_dispute_block.csv", index=False
+        )
 
     plot_interval_width_by_level(df, run_dir)
     return summary

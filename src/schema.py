@@ -18,8 +18,17 @@ PROMPT_PATH = ROOT / "prompts" / "taxonomy.txt"
 
 TaxonomicLevel = Literal["genus", "family", "order"]
 Familiarity = Literal["well_known", "obscure"]
+DisputeBlock = Literal["undisputed", "disputed"]
 QUANTILE_LEVELS = (0.1, 0.5, 0.9)
 IOC_VERSION = "15.2"
+
+EXPECTED_CELLS = 24
+EXPECTED_GENUS_PROMPTS = 24
+EXPECTED_FAMILY_PROMPTS = 12
+EXPECTED_ORDER_PROMPTS = 10
+EXPECTED_UNIQUE_PROMPTS = (
+    EXPECTED_GENUS_PROMPTS + EXPECTED_FAMILY_PROMPTS + EXPECTED_ORDER_PROMPTS
+)
 
 
 class ScenarioCell(BaseModel):
@@ -32,6 +41,12 @@ class ScenarioCell(BaseModel):
     ioc_genus: int = Field(ge=0)
     ioc_family: int = Field(gt=0)
     ioc_order: int = Field(gt=0)
+    authority_genus_min: int | None = None
+    authority_genus_max: int | None = None
+    authority_family_min: int | None = None
+    authority_family_max: int | None = None
+    authority_order_min: int | None = None
+    authority_order_max: int | None = None
     notes: str = ""
 
     @model_validator(mode="after")
@@ -49,9 +64,28 @@ class ScenarioCell(BaseModel):
     def ioc_count_for_level(self, level: TaxonomicLevel) -> int:
         return {"genus": self.ioc_genus, "family": self.ioc_family, "order": self.ioc_order}[level]
 
+    def authority_bounds_for_level(self, level: TaxonomicLevel) -> tuple[int | None, int | None]:
+        return {
+            "genus": (self.authority_genus_min, self.authority_genus_max),
+            "family": (self.authority_family_min, self.authority_family_max),
+            "order": (self.authority_order_min, self.authority_order_max),
+        }[level]
+
+    def authority_spread_for_level(self, level: TaxonomicLevel) -> int | None:
+        lo, hi = self.authority_bounds_for_level(level)
+        if lo is None or hi is None:
+            return None
+        return int(hi - lo)
+
+    def dispute_block_for_level(self, level: TaxonomicLevel) -> DisputeBlock | None:
+        spread = self.authority_spread_for_level(level)
+        if spread is None:
+            return None
+        return "undisputed" if spread == 0 else "disputed"
+
 
 class Scenario(BaseModel):
-    """One prompt instance: a single taxonomic level within a cell."""
+    """One unique elicitation prompt (46 total: 24 genus + 12 family + 10 order)."""
 
     id: str
     cell_id: str
@@ -64,6 +98,10 @@ class Scenario(BaseModel):
     ioc_genus: int = Field(ge=0)
     ioc_family: int = Field(gt=0)
     ioc_order: int = Field(gt=0)
+    authority_min: int | None = None
+    authority_max: int | None = None
+    authority_spread: int | None = None
+    dispute_block: DisputeBlock | None = None
     notes: str = ""
 
     @property
@@ -73,6 +111,10 @@ class Scenario(BaseModel):
             self.taxonomic_level
         ]
         return f"the {self.taxonomic_level} {latin}"
+
+    @property
+    def prompt_key(self) -> str:
+        return self.id
 
 
 REASONING_MAX_LENGTH = 400
@@ -121,7 +163,7 @@ def parse_prediction(data: dict) -> Prediction:
 
 
 class PredictionRecord(BaseModel):
-    scenario_id: str
+    prompt_key: str
     model: str
     provider: str
     prediction: Prediction
@@ -133,10 +175,17 @@ def _slug(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
 
 
+def prompt_id_for_cell(cell: ScenarioCell, level: TaxonomicLevel) -> str:
+    if level == "genus":
+        return f"{cell.cell_id}_genus"
+    taxon = cell.family if level == "family" else cell.order
+    return f"{level}_{_slug(taxon)}"
+
+
 def expand_cell(cell: ScenarioCell) -> list[Scenario]:
     scenarios: list[Scenario] = []
     for level in ("genus", "family", "order"):
-        scenario_id = f"{cell.cell_id}_{level}"
+        scenario_id = prompt_id_for_cell(cell, level)  # type: ignore[arg-type]
         scenarios.append(
             Scenario(
                 id=scenario_id,
@@ -150,6 +199,10 @@ def expand_cell(cell: ScenarioCell) -> list[Scenario]:
                 ioc_genus=cell.ioc_genus,
                 ioc_family=cell.ioc_family,
                 ioc_order=cell.ioc_order,
+                authority_min=cell.authority_bounds_for_level(level)[0],  # type: ignore[arg-type]
+                authority_max=cell.authority_bounds_for_level(level)[1],  # type: ignore[arg-type]
+                authority_spread=cell.authority_spread_for_level(level),  # type: ignore[arg-type]
+                dispute_block=cell.dispute_block_for_level(level),  # type: ignore[arg-type]
                 notes=cell.notes,
             )
         )
@@ -169,10 +222,12 @@ def load_scenario_cells(path: Path | None = None) -> list[ScenarioCell]:
 
 
 def load_scenarios(path: Path | None = None) -> list[Scenario]:
-    expanded: list[Scenario] = []
+    """Return the 46 unique elicitation prompts (deduped family/order)."""
+    unique: dict[str, Scenario] = {}
     for cell in load_scenario_cells(path):
-        expanded.extend(expand_cell(cell))
-    return expanded
+        for scenario in expand_cell(cell):
+            unique.setdefault(scenario.id, scenario)
+    return sorted(unique.values(), key=lambda s: (s.taxonomic_level, s.id))
 
 
 def load_prompt_template(path: Path | None = None) -> str:

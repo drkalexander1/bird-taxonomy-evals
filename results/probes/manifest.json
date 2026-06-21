@@ -1,0 +1,26 @@
+{
+  "created_at": "2026-06-21T22:11:59.097843+00:00",
+  "probe_file": "theropod.yaml",
+  "prompt_template": "taxonomy_extinct.txt",
+  "models": [
+    "claude-haiku-4-5",
+    "claude-sonnet-4-6",
+    "claude-opus-4-8",
+    "gpt-4o-mini",
+    "gpt-4o",
+    "o3"
+  ],
+  "probes": [
+    {
+      "id": "theropoda_extinct",
+      "taxonomic_unit": "the order Theropoda",
+      "note": "Cheeky control. Theropods include the avian lineage; models may recycle bird priors, confuse fossil vs living counts, or refuse. No IOC target."
+    },
+    {
+      "id": "maniraptora_extinct",
+      "taxonomic_unit": "the clade Maniraptora",
+      "note": "Tighter bird link (includes Aves). Extinct-only wording asks them to exclude living birds \u2014 see if they can hold that constraint."
+    }
+  ],
+  "note": "No ground truth \u2014 qualitative sanity check only"
+}
