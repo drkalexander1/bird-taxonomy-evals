@@ -57,7 +57,7 @@ def _require_api_keys(models: list[str]) -> None:
     )
     print(
         "API key missing. " + env_hint + "\n"
-        "For a no-API smoke test: python scripts/generate_demo_predictions.py",
+        "For a no-API smoke test: pytest -q && python -m src.validate_scenarios",
         file=sys.stderr,
     )
     raise SystemExit(1)

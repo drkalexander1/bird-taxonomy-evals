@@ -19,7 +19,5 @@ jobs:
         run: python -m src.validate_scenarios --allow-placeholders
       - name: Unit tests
         run: pytest -q
-      - name: Demo scoring smoke test
-        run: |
-          python scripts/generate_demo_predictions.py
-          python -m src.score --run results/demo
+      - name: Score committed live results
+        run: python -m src.score --run results/latest

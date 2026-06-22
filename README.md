@@ -70,7 +70,7 @@ n=24 is sufficient for structural/hierarchy findings. Model-ranking claims are l
 ```
 prompts/taxonomy.txt   prompt template
 data/scenarios.yaml    24 taxonomy cells
-scripts/               IOC derivation, demo predictions
+scripts/               IOC derivation, probe runner
 src/                   schema, run_eval, score, validate
 data/                  IOC reference (ioc_*.xlsx gitignored)
 results/               scored output by model

@@ -8,5 +8,3 @@ dist/
 .DS_Store
 data/ioc_*.xlsx
 results/raw/
-*.jsonl
-.env
