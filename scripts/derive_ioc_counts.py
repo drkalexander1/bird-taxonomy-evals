@@ -9,6 +9,7 @@ Then run:
 
   python scripts/derive_ioc_counts.py
   python scripts/derive_ioc_counts.py --update-scenarios
+  python scripts/derive_ioc_counts.py --inspect
 """
 
 from __future__ import annotations
@@ -362,6 +363,141 @@ def summarize_dispute_blocks(path: Path) -> dict[str, dict[str, int]]:
     return summary
 
 
+def _authority_name_columns(df: pd.DataFrame) -> list[str]:
+    return [
+        c
+        for c in df.columns
+        if any(k in c for k in ("Clements", "HBW and BirdLife", "Howard and Moore", "AviList"))
+        and "Family" not in c
+        and "Group" not in c
+    ]
+
+
+def inspect_ioc_workbook(path: Path, *, head: int = 80) -> None:
+    """Print IOC master / Life List+ structure and parser sanity checks."""
+    df = pd.read_excel(path, sheet_name=0)
+    print(f"=== IOC workbook: {path.name} ===")
+    print(f"rows={len(df)}, columns={len(df.columns)}")
+
+    if RANK_COL in df.columns:
+        print("format: hierarchical (Rank column)")
+        name_col = "Scientific Name" if "Scientific Name" in df.columns else "Scientific name"
+        cols = [RANK_COL, "English name", name_col]
+        cols = [c for c in cols if c in df.columns]
+        print(f"\n--- first {head} hierarchy rows ---")
+        for i, row in df[cols].head(head).iterrows():
+            rank = str(row[RANK_COL])[:14]
+            parts = [str(row[c])[:28] for c in cols[1:]]
+            print(f"{i:3} {rank:14} | " + " | ".join(parts))
+
+        species = df[df[RANK_COL].map(_normalize_rank) == "species"]
+        print(f"\nspecies rows: {len(species)}")
+    else:
+        print("format: flat (genus/family/order columns)")
+        print("columns:", list(df.columns)[:12])
+
+    parsed = load_ioc_species(path)
+    print(
+        f"\nparser: {len(parsed)} species rows, "
+        f"{parsed['genus'].nunique()} genera, "
+        f"{parsed['family'].nunique()} families, "
+        f"{parsed['order'].nunique()} orders"
+    )
+    corvus = parsed[parsed["genus"].str.lower() == "corvus"]
+    if not corvus.empty:
+        print(f"Corvus sample ({len(corvus)} species): {', '.join(corvus['species'].head(5))}")
+
+
+def inspect_comparison_workbook(path: Path) -> None:
+    """Print comparison spreadsheet columns and authority coverage."""
+    df = pd.read_excel(path, sheet_name=0)
+    print(f"\n=== comparison workbook: {path.name} ===")
+    print(f"shape={df.shape}")
+
+    if RANK_COL not in df.columns:
+        print("WARNING: missing Rank column")
+        return
+
+    print("\nRank counts:")
+    print(df[RANK_COL].value_counts().head(10).to_string())
+
+    ioc_col = df.columns[1]
+    print(f"\nIOC species column: {ioc_col[:60]}")
+
+    auth_cols = _authority_name_columns(df)
+    print("Authority name columns:", [c[:50] for c in auth_cols])
+
+    species = df[df[RANK_COL].map(_normalize_rank) == "species"].copy()
+    print(f"\nSpecies rows: {len(species)}")
+
+    for c in auth_cols[:4]:
+        recognized = authority_recognized(species[c]).sum()
+        print(f"  {c[:40]}: {recognized} recognized")
+
+    if IOC_FAMILY_COL in species.columns:
+        corv = species[species[IOC_FAMILY_COL] == "Corvidae"]
+        print(f"\nCorvidae IOC species: {len(corv)}")
+        for c in auth_cols[:3]:
+            print(f"  {c[:30]} non-null in Corvidae: {authority_recognized(corv[c]).sum()}")
+
+    species["_binomial"] = species[ioc_col].map(_species_binomial)
+    species["_genus"] = species["_binomial"].str.split().str[0]
+    corvus = species[species["_genus"] == "Corvus"]
+    print(f"\nCorvus species: {len(corvus)}")
+    for c in auth_cols[:4]:
+        print(f"  {c[:35]}: {authority_recognized(corvus[c]).sum()}")
+
+
+def inspect_scenarios(path: Path) -> None:
+    """Print dispute-block assignment for scenario cells."""
+    from src.schema import load_scenario_cells, load_scenarios
+
+    cells = load_scenario_cells(path)
+    prompts = load_scenarios(path)
+
+    print(f"\n=== scenarios: {path.name} ===")
+    print("--- cells (genus authority span) ---")
+    for cell in cells:
+        spread = cell.authority_spread_for_level("genus")
+        block = cell.dispute_block_for_level("genus")
+        print(
+            f"{block or 'unknown':10} spread={spread or 0:3}  "
+            f"{cell.genus:18} / {cell.family:14}  "
+            f"ioc={cell.ioc_genus} [{cell.authority_genus_min}-{cell.authority_genus_max}]"
+        )
+
+    print("\n--- unique prompts by level ---")
+    for level in ("genus", "family", "order"):
+        sub = [p for p in prompts if p.taxonomic_level == level and p.dispute_block]
+        counts = Counter(p.dispute_block for p in sub)
+        print(f"{level}: {len(sub)} prompts, blocks {dict(counts)}")
+
+
+def run_inspect(
+    *,
+    xlsx: Path,
+    comparison_xlsx: Path,
+    scenarios_path: Path,
+) -> int:
+    if not xlsx.exists():
+        print(f"IOC spreadsheet not found at {xlsx}")
+        return 1
+
+    inspect_ioc_workbook(xlsx)
+
+    if comparison_xlsx.exists():
+        inspect_comparison_workbook(comparison_xlsx)
+    else:
+        print(f"\nComparison spreadsheet not found at {comparison_xlsx}")
+
+    if scenarios_path.exists():
+        inspect_scenarios(scenarios_path)
+    else:
+        print(f"\nScenarios file not found at {scenarios_path}")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Derive IOC taxonomy reference counts")
     parser.add_argument("--xlsx", type=Path, default=DEFAULT_XLSX, help="IOC Life List+ / Master list")
@@ -377,7 +513,19 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Rewrite ioc_* and authority_* fields in data/scenarios.yaml",
     )
+    parser.add_argument(
+        "--inspect",
+        action="store_true",
+        help="Print workbook structure, parser checks, and scenario dispute blocks",
+    )
     args = parser.parse_args(argv)
+
+    if args.inspect:
+        return run_inspect(
+            xlsx=args.xlsx,
+            comparison_xlsx=args.comparison_xlsx,
+            scenarios_path=SCENARIOS_PATH,
+        )
 
     if not args.xlsx.exists():
         print(

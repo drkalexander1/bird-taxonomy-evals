@@ -3,10 +3,25 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter
+import importlib.util
+import sys
 from pathlib import Path
 
-from src.schema import SCENARIOS_PATH, load_scenario_cells, load_scenarios
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from src.schema import SCENARIOS_PATH
+
+
+def _load_derive_module():
+    path = Path(__file__).resolve().parent / "derive_ioc_counts.py"
+    spec = importlib.util.spec_from_file_location("derive_ioc_counts", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Could not load {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -14,25 +29,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scenarios", type=Path, default=SCENARIOS_PATH)
     args = parser.parse_args(argv)
 
-    cells = load_scenario_cells(args.scenarios)
-    prompts = load_scenarios(args.scenarios)
-
-    print("=== cells (genus authority span) ===")
-    for cell in cells:
-        spread = cell.authority_spread_for_level("genus")
-        block = cell.dispute_block_for_level("genus")
-        print(
-            f"{block or 'unknown':10} spread={spread or 0:3}  "
-            f"{cell.genus:18} / {cell.family:14}  "
-            f"ioc={cell.ioc_genus} [{cell.authority_genus_min}-{cell.authority_genus_max}]"
-        )
-
-    print("\n=== unique prompts by level ===")
-    for level in ("genus", "family", "order"):
-        sub = [p for p in prompts if p.taxonomic_level == level and p.dispute_block]
-        counts = Counter(p.dispute_block for p in sub)
-        print(f"{level}: {len(sub)} prompts, blocks {dict(counts)}")
-
+    derive = _load_derive_module()
+    derive.inspect_scenarios(args.scenarios)
     return 0
 
 
