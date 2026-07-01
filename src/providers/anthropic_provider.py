@@ -10,13 +10,14 @@ import anthropic
 
 from src.schema import Prediction, parse_prediction, prediction_json_schema
 
-_TEMPERATURE_OK_PREFIXES = ("claude-haiku-", "claude-sonnet-", "claude-3-")
+_TEMPERATURE_OK_PREFIXES = ("claude-haiku-", "claude-sonnet-4", "claude-3-")
 _ALWAYS_THINKING_PREFIXES = ("claude-fable-", "claude-mythos-")
 _ADAPTIVE_THINKING_PREFIXES = (
     "claude-opus-4-6",
     "claude-opus-4-7",
     "claude-opus-4-8",
     "claude-sonnet-4-6",
+    "claude-sonnet-5",
 )
 _MANUAL_THINKING_BUDGET = 4096
 

@@ -31,6 +31,7 @@ from src.schema import (
 DEFAULT_MODELS = [
     "claude-haiku-4-5",
     "claude-sonnet-4-6",
+    "claude-sonnet-5",
     "claude-opus-4-8",
     "gpt-4o-mini",
     "gpt-4o",
