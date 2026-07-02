@@ -1,0 +1,71 @@
+{
+  "eval_set_id": "Ff4c65zCkPXvvSzCfP3eB6",
+  "tasks": [
+    {
+      "name": "taxonomy_eval",
+      "task_id": "Kzt5t42iH6ziB5Gik9Dh2J",
+      "task_file": "src/inspect_task.py",
+      "task_args": {
+        "scenarios_path": null
+      },
+      "model": "anthropic/claude-haiku-4-5",
+      "model_args": {},
+      "sequence": 0
+    },
+    {
+      "name": "taxonomy_eval",
+      "task_id": "ngaAh2pxLkcwsCBzUmGU4q",
+      "task_file": "src/inspect_task.py",
+      "task_args": {
+        "scenarios_path": null
+      },
+      "model": "anthropic/claude-sonnet-4-6",
+      "model_args": {},
+      "sequence": 0
+    },
+    {
+      "name": "taxonomy_eval",
+      "task_id": "Emj5mhhSP8BQYyQMcGZDQc",
+      "task_file": "src/inspect_task.py",
+      "task_args": {
+        "scenarios_path": null
+      },
+      "model": "anthropic/claude-sonnet-5",
+      "model_args": {},
+      "sequence": 0
+    },
+    {
+      "name": "taxonomy_eval",
+      "task_id": "m7SxenW3svjKZS9HfrNLgU",
+      "task_file": "src/inspect_task.py",
+      "task_args": {
+        "scenarios_path": null
+      },
+      "model": "anthropic/claude-opus-4-8",
+      "model_args": {},
+      "sequence": 0
+    },
+    {
+      "name": "taxonomy_eval",
+      "task_id": "YfDQZ2KfqaNUjRPdrkhVKV",
+      "task_file": "src/inspect_task.py",
+      "task_args": {
+        "scenarios_path": null
+      },
+      "model": "openai/gpt-4o-mini",
+      "model_args": {},
+      "sequence": 0
+    },
+    {
+      "name": "taxonomy_eval",
+      "task_id": "Szhxi29eynNmytH3qXZ8hh",
+      "task_file": "src/inspect_task.py",
+      "task_args": {
+        "scenarios_path": null
+      },
+      "model": "openai/gpt-4o",
+      "model_args": {},
+      "sequence": 0
+    }
+  ]
+}
