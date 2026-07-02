@@ -2,7 +2,16 @@
 
 from __future__ import annotations
 
-from src.schema import Prediction, PredictionRecord, Scenario, load_scenarios
+from src.schema import (
+    EXPECTED_FAMILY_PROMPTS,
+    EXPECTED_GENUS_PROMPTS,
+    EXPECTED_ORDER_PROMPTS,
+    EXPECTED_UNIQUE_PROMPTS,
+    Prediction,
+    PredictionRecord,
+    Scenario,
+    load_scenarios,
+)
 from src.schema import build_prompt
 from src.score import (
     build_frame,
@@ -164,10 +173,10 @@ def test_authority_span_coverage():
 
 def test_unique_prompt_count():
     prompts = load_scenarios()
-    assert len(prompts) == 46
-    assert len([p for p in prompts if p.taxonomic_level == "genus"]) == 24
-    assert len([p for p in prompts if p.taxonomic_level == "family"]) == 12
-    assert len([p for p in prompts if p.taxonomic_level == "order"]) == 10
+    assert len(prompts) == EXPECTED_UNIQUE_PROMPTS
+    assert len([p for p in prompts if p.taxonomic_level == "genus"]) == EXPECTED_GENUS_PROMPTS
+    assert len([p for p in prompts if p.taxonomic_level == "family"]) == EXPECTED_FAMILY_PROMPTS
+    assert len([p for p in prompts if p.taxonomic_level == "order"]) == EXPECTED_ORDER_PROMPTS
 
 
 def test_hierarchy_coherent():

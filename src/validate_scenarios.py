@@ -20,7 +20,7 @@ from src.schema import (
 )
 
 FAMILIARITIES = {"well_known", "obscure"}
-EXPECTED_FAMILIES = 12
+EXPECTED_FAMILIES = 14
 
 
 def validate_cells(cells) -> list[str]:

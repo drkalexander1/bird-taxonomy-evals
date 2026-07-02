@@ -338,3 +338,59 @@ cells:
   authority_family_max: 25
   authority_order_min: 374
   authority_order_max: 394
+- genus: Aptenodytes
+  family: Spheniscidae
+  order: Sphenisciformes
+  familiarity: well_known
+  ioc_genus: 2
+  ioc_family: 19
+  ioc_order: 19
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 2
+  authority_genus_max: 2
+  authority_family_min: 16
+  authority_family_max: 19
+  authority_order_min: 16
+  authority_order_max: 19
+- genus: Eudyptula
+  family: Spheniscidae
+  order: Sphenisciformes
+  familiarity: obscure
+  ioc_genus: 1
+  ioc_family: 19
+  ioc_order: 19
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 1
+  authority_genus_max: 1
+  authority_family_min: 16
+  authority_family_max: 19
+  authority_order_min: 16
+  authority_order_max: 19
+- genus: Pavo
+  family: Phasianidae
+  order: Galliformes
+  familiarity: well_known
+  ioc_genus: 2
+  ioc_family: 187
+  ioc_order: 307
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 2
+  authority_genus_max: 2
+  authority_family_min: 178
+  authority_family_max: 187
+  authority_order_min: 292
+  authority_order_max: 307
+- genus: Ithaginis
+  family: Phasianidae
+  order: Galliformes
+  familiarity: obscure
+  ioc_genus: 1
+  ioc_family: 187
+  ioc_order: 307
+  notes: IOC v15.2 counts with cross-authority min/max from comparison spreadsheet
+  authority_genus_min: 1
+  authority_genus_max: 1
+  authority_family_min: 178
+  authority_family_max: 187
+  authority_order_min: 292
+  authority_order_max: 307
