@@ -12,7 +12,7 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 
-from src.run_eval import ENV_PATH, _require_api_keys, get_provider
+from src.providers.registry import ENV_PATH, _require_api_keys, get_provider
 from src.schema import ROOT, PredictionRecord
 
 PROBE_PROMPT_PATH = ROOT / "prompts" / "taxonomy_extinct.txt"
