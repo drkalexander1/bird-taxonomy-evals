@@ -7,20 +7,23 @@ requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.27.0",
     "pydantic>=2.0",
-    "openai>=1.40.0",
-    "anthropic>=0.34.0",
+    "openai>=2.40.0",
+    "anthropic>=0.115.0",
     "python-dotenv>=1.0.0",
     "pandas>=2.2.0",
     "matplotlib>=3.8.0",
     "pyyaml>=6.0",
     "numpy>=1.26.0",
     "openpyxl>=3.1.0",
+    "inspect-ai>=0.3.244",
 ]
 
 [project.scripts]
 validate-scenarios = "src.validate_scenarios:main"
 run-eval = "src.run_eval:main"
 score-eval = "src.score:main"
+run-inspect = "src.run_inspect:main"
+score-inspect = "src.ingest_inspect:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
