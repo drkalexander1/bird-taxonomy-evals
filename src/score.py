@@ -301,6 +301,8 @@ def cell_level_metrics(cells: list[ScenarioCell], prompt_df: pd.DataFrame) -> pd
 
 def classify_cells(cell_metrics: pd.DataFrame, consistency: pd.DataFrame) -> pd.DataFrame:
     """Three-way split: coherent-and-right / coherent-but-wrong / incoherent."""
+    if cell_metrics.empty or consistency.empty:
+        return pd.DataFrame()
     best_by_cell = cell_metrics.groupby("cell_id")["crps_relative"].min().rename("best_crps")
     level_crps = cell_metrics.merge(best_by_cell, on="cell_id")
     level_crps["within_1sd"] = level_crps["crps_relative"] <= level_crps["best_crps"] * 1.5
@@ -390,6 +392,22 @@ def score_run(
         raise FileNotFoundError(f"No predictions at {predictions_path}")
 
     predictions = load_predictions(predictions_path)
+    return score_predictions(cells, prompts, predictions, run_dir)
+
+
+def score_predictions(
+    cells: list[ScenarioCell],
+    prompts: list[Scenario],
+    predictions: list[PredictionRecord],
+    out_dir: Path,
+) -> dict:
+    """Score a set of predictions against scenarios and write summary/CSVs to out_dir.
+
+    Shared by the jsonl-based harness (score_run) and the Inspect-log-based
+    ingestion path (ingest_inspect.score_inspect_run) — both converge on the
+    same list[Scenario] + list[PredictionRecord] inputs.
+    """
+    run_dir = out_dir
     df = build_frame(prompts, predictions)
     if df.empty:
         raise ValueError("No matching prompts for predictions")
